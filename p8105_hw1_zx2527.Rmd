@@ -40,8 +40,10 @@ The **_mean temperature_** during this period is
 Make Scatterplot of **_temperature vs date-time of recording_**
 ```{r plot_temp_vs_time_hour}
 library(ggplot2)
-ggplot(early_january_weather,aes(x=time_hour,y=temp,color=humid))+geom_point()
-ggsave("temp_vs_time_plot.png", width=6, height=4)
+scatterplot <- ggplot(early_january_weather,aes(x=time_hour,y=temp,color=humid))+geom_point()
+scatterplot
+
+ggsave("temp_vs_time_plot.png", plot=scatterplot, width=6, height=4)
 ```
 
 _**Patterns** of the scatterplot:_ The scatterplot shows that temperature generally **increases** 
