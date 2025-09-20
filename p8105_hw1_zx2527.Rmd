@@ -1,37 +1,105 @@
 ---
-title: "homework1"
+title: "Homework1"
 author: "Zihan Xiong"
-date: 2024-09-10
+date: 2024-09-20
 output: github_document
 ---
 
-```{r setup, include = FALSE}
+# Problem 1
+
+_Package penguins has been installed_
+
+```{r}
+library(moderndive)
 library(tidyverse)
 ```
+_**Load** the data_
+```{r}
+data("early_january_weather")
+```
 
-The purpose of this file is to present a couple of basic plots using `ggplot`.
+_Description of the dataset using inline R code:_ The dataset is a **data frame** with 
+`r nrow(early_january_weather)` rows and 
+`r ncol(early_january_weather)` variables.
 
-First we create a dataframe containing variables for our plots.
+Key variables include:
 
-```{r df_create}
+1. **origin**: Weather station ID (useful for merging with other datasets like `nycflights13::flights`).
+2. **year, month, day, hour**: Time of recording.
+3. **temp, dewp**: Temperature and dewpoint in °F.
+4. **humid**: Relative humidity (%).
+5. **wind_dir, wind_speed, wind_gust**: Wind direction (°), speed, and gust speed (mph).
+6. **precip**: Precipitation (in inches).
+7. **pressure**: Sea level pressure in millibars.
+8. **visib**: Visibility in miles.
+9. **time_hour**: Date-time of recording (POSIXct).
+
+The **_mean temperature_** during this period is 
+`r round(mean(early_january_weather$temp), 1)` °F.
+
+Make Scatterplot of **_temperature vs date-time of recording_**
+```{r plot_temp_vs_time_hour}
+library(ggplot2)
+ggplot(early_january_weather,aes(x=time_hour,y=temp,color=humid))+geom_point()
+ggsave("temp_vs_time_plot.png", width=6, height=4)
+```
+
+_**Patterns** of the scatterplot:_ The scatterplot shows that temperature generally **increases** 
+over the course of early January, with clear daily fluctuations. We can also observe that there was an **inversive** relationship between humidity and temperature. Higher humidity are associated with lower temperature.
+
+
+
+
+# Problem 2
+
+First, create a **data frame** with four types of variables:
+
+```{r}
+library(tidyverse)
+
 set.seed(1234)
 
-plot_df = tibble(
-  x = rnorm(1000, sd = .5),
-  y = 1 + 2 * x + rnorm(1000)
+prob2_df = tibble(
+  norm_sample = rnorm(10),                      # numeric
+  vec_logical = norm_sample > 0,                  # logical, True=1, False=0
+  vec_char = c("a","b","c","d","e","f","g","h","i","j"),  # character
+  vec_factor= factor(c("a","b","c","a","b","c","a","b","c","a"))  # factor
 )
+
+prob2_df
+``` 
+
+Now we try to take the **mean** of each variables in the dataframe.
+
+* The mean of the numeric variable **norm_sample** is `r mean(pull(prob2_df, norm_sample))` . 
+* The mean of the logical variable **vec_logical** is `r mean(pull(prob2_df, vec_logical))` , indicating that 40% of this sample values are greater than 0.
+* The mean of the character variable **vec_char** is `r mean(pull(prob2_df, vec_char))` . 
+* The mean of the factor variable **vec_factor** is `r mean(pull(prob2_df, vec_factor))` . 
+
+Noticed that we are not able to take the mean of **character vectors** and **factor vectors** because
+they are not directly **numeric** .
+
+Now we apply **as.numeric()** to the **non-numeric variables** :
+
+```{r, eval=FALSE}
+as.numeric(prob2_df$vec_logical)
+as.numeric(prob2_df$vec_char)
+as.numeric(prob2_df$vec_factor)
 ```
 
-First we show a histogram of the `x` variable.
+After applying `as.numeric()` to the different variable types gives different results:
 
-```{r x_hist}
-ggplot(plot_df, aes(x = x)) + 
-	geom_histogram()
-```
+For the **logical vector**, `TRUE` values are converted to 1 and `FALSE` values to 0.  
+This explains why we can directly take the mean of a logical vector: the mean is simply the proportion of `TRUE` values.
 
-Next we show a scatterplot of `y` vs `x`. 
+For the **character vector**, conversion produces `NA` values and a warning `NAs introduced by coercion` .
+Since characters cannot be meaningfully coerced into numbers, which explains why calculating mean of the character vectos produced an error.
 
-```{r yx_scatter}
-ggplot(plot_df, aes(x = x, y = y)) + 
-	geom_point()
-```
+For the **factor vector**, conversion produces numbers `1,2,3` , which gives the underlying integer codes for the factor 
+levels (e.g., `"a" = 1`, `"b" = 2`, `"c" = 3`). 
+Although these are numeric results, it is not meaningful. The assigned numbers are arbitrary labels, not real values.
+So we still don't see the mean of the factor vectors.
+
+
+  
+  
